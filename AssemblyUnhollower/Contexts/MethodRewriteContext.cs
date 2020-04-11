@@ -109,6 +109,22 @@ namespace AssemblyUnhollower.Contexts
             return method.Name;
         }
 
+        internal static uint GenHash(string name)
+        {
+            byte[] bytes = Encoding.UTF8.GetBytes(name.ToLowerInvariant());
+
+            uint num = 0u;
+            for (int i = 0; i < bytes.Length; i++)
+            {
+                num += (uint)bytes[i];
+                num += num << 10;
+                num ^= num >> 6;
+            }
+            num += num << 3;
+            num ^= num >> 11;
+            return num + (num << 15);
+        }
+
         private static readonly string[] MethodAccessTypeLabels = { "CompilerControlled", "Private", "FamAndAssem", "Internal", "Protected", "FamOrAssem", "Public"};
         private string UnmangleMethodNameWithSignature(MethodDefinition method)
         {
@@ -130,7 +146,8 @@ namespace AssemblyUnhollower.Contexts
             }
 
             builder.Append('_');
-            builder.Append(method.DeclaringType.Methods.Where(it => ParameterSignatureSame(it, method)).TakeWhile(it => it != method).Count());
+            //builder.Append(method.DeclaringType.Methods.Where(it => ParameterSignatureSame(it, method)).TakeWhile(it => it != method).Count());
+            builder.Append(GenHash(method.Name).ToString("X8"));
 
             return builder.ToString();
         }

@@ -17,7 +17,11 @@ namespace AssemblyUnhollower.Passes
                 
                 foreach (var typeContext in assemblyContext.Types)
                 {
+
                     var typeGetMethod = new MethodDefinition("get_Il2CppType", MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Static, il2CppSystemTypeRef);
+
+                    if (typeContext.OriginalType.IsEnum) continue;
+
                     typeContext.NewType.Methods.Add(typeGetMethod);
                     var typeProperty = new PropertyDefinition("Il2CppType", PropertyAttributes.None, il2CppSystemTypeRef);
                     typeProperty.GetMethod = typeGetMethod;

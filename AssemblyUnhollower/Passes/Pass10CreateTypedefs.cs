@@ -41,7 +41,8 @@ namespace AssemblyUnhollower.Passes
                     return "Nested" + type.DeclaringType.Resolve().NestedTypes.IndexOf(type.Resolve());
                 }
 
-                return "Type" + (uint) type.Name.StableHash();
+
+                return "_" + MethodRewriteContext.GenHash(type.Name).ToString("X8");
             }
 
             return type.Name;
@@ -51,7 +52,10 @@ namespace AssemblyUnhollower.Passes
         {
             typeAttributes |= TypeAttributes.BeforeFieldInit;
             typeAttributes &= ~(TypeAttributes.Abstract | TypeAttributes.Interface);
-            
+
+            typeAttributes &= ~(TypeAttributes.LayoutMask);
+            typeAttributes |= TypeAttributes.AutoLayout;
+
             var visibility = typeAttributes & TypeAttributes.VisibilityMask;
             if (visibility == 0 || visibility == TypeAttributes.Public)
                 return typeAttributes | TypeAttributes.Public;
